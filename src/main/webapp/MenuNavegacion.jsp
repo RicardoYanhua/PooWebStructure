@@ -22,10 +22,15 @@
 	<script src="<%= request.getContextPath() %>/assetsCustom/js/popupScript.js"></script>
 	
 	<style>
-		
+		body{
+		background-color: rgb(245,245,255);
+		width: 100%;
+		height: 100vh;
+		}
 		.container-fluid {
 			margin : 0;
 			padding: 0px;
+			
 			}
 		.navbar-brand{
 			padding: 0px 100px 0px 0px;
@@ -95,10 +100,10 @@
 </div>
 
 <div id="Overlay" class="Overlay"></div>
-<div id="ConfirmationPopup" class="PopupMessage" style = "padding: 30px 20px;">
+<div id="ConfirmationPopup" class="PopupMessage" style = "padding: 30px 50px;">
 	<div >
 		<h4 id = "PopupTextTittle"style = "text-align: left;">Tittle</h4>
-    	<span id="PopupTextComfir"></span>
+    	<span id="PopupTextComfir" style = "font-size: 15px"></span>
 	</div>
     
     <div style="display:flex;justify-content:flex-end; gap : 10px;margin-top: 20px">

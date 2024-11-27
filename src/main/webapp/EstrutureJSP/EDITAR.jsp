@@ -13,6 +13,7 @@
 
 	<style>
 		.form-conteiner{
+			
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -27,7 +28,6 @@
 			background-color: rgb(255,255,255);
 			border-radius:8px;
 			box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.1);
-			border: 1px solid rgb(220,220,220);
 		}
 
         input[type="number"]::-webkit-inner-spin-button,

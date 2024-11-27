@@ -48,17 +48,13 @@
             BotonEliminar.innerText = "Eliminar";
             BotonEliminar.classList = "btn btn-danger";
             BotonEliminar.onclick = function () {
-                // Confirmación de eliminación
-                	showMessage('Fila'+ fila.rowIndex, 2);
-                    tabla.deleteRow(fila.rowIndex - 1);  // Eliminar la fila usando el índice
-                    selectedOption.style.display = "block"; // Hacer visible de nuevo la opción seleccionada
+                    tabla.deleteRow(fila.rowIndex - 1);  
+                    selectedOption.style.display = "block"; 
                 
             };
             
             Celda_Elminar.appendChild(BotonEliminar);
 
-            // Remover la opción seleccionada del select
-            //select.removeChild(selectedOption);
             selectedOption.style.display = "none";
             select.selectedIndex = 0;
         }
@@ -72,7 +68,7 @@
 		const Variable1 = document.getElementById('Variable1').value.trim();
 		
 		if (Variable1 === '') {
-			showMessage('Operación realizada con éxito', 2);
+			showMessage('Operación realizada con éxito', 4);
             document.getElementById('Variable1').focus();
             return false; // Previene el envío del formulario
         }
@@ -85,6 +81,7 @@
 
 	<style>
 		.form-conteiner{
+			
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -99,7 +96,6 @@
 			background-color: rgb(255,255,255);
 			border-radius:8px;
 			box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.1);
-			border: 1px solid rgb(220,220,220);
 		}
 
 		.tittle-form{
@@ -112,6 +108,11 @@
 			gap: 10px;
 			padding: 30px 0px 0px 0px;
 		}
+		.table-content{
+            width: 100%;
+            height: 300px;  /* Altura fija para el contenedor */
+            overflow-y: auto;  /* Habilita el scroll cuando el contenido exceda la altura */
+        }
 	
 	</style>
 
@@ -172,8 +173,8 @@
 					<button class="btn btn-primary" type="button" onclick="agregarATabla(event)">Agregar</button>
 				</div>
 				
-                		
-                	<table class="table table-hover" >
+                <div class = "table-content">
+                	<table class="table table-hover">
 						<thead class="table-dark">
                     		<tr>
                         		<th>PrimaryKey</th>
@@ -187,6 +188,8 @@
                     		<!-- Filas se agregarán aquí dinámicamente -->
                 		</tbody>
            			 </table>
+           		</div>
+           			 
         	</div>
 				
 			

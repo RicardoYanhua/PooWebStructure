@@ -29,13 +29,14 @@
 </script>
 
 	<style>
-	
+		
+		
 		.panel-body{
+			
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			width: 100%;
-			height: 100vh;
 			margin: 0;
 		}
 		
@@ -46,7 +47,6 @@
 			background-color: rgb(255,255,255);
 			border-radius:8px;
 			box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.1);
-			border: 1px solid rgb(220,220,220);
 		}
 		
 		.panel-header{
@@ -56,8 +56,13 @@
 			padding: 20px 0px;
 		}
 		.row:hover {
-	background-color: rgb(255,0,0);
-}
+			background-color: rgb(255,0,0);
+		}
+		.table-content{
+            width: 100%;
+            height: 500px;  /* Altura fija para el contenedor */
+            overflow-y: auto;  /* Habilita el scroll cuando el contenido exceda la altura */
+        }
 		
 		
 		
@@ -86,8 +91,7 @@
 	
 	 -->
 	
-
-	<div class = "panel-body">
+	<div class = "panel-body" >
 	<div class="panel-conteiner">
 		
 		<div class = "panel-header">
@@ -95,8 +99,9 @@
 			<a type="button" href="<%=url%>NameController?op=nuevo" class="btn btn-primary">Nuevo autor</a>
 		</div>
 	
+		<div class = "table-content">
 		
-		<table class="table table-hover">
+			<table class="table table-hover">
 			<thead class="table-dark">
 				<tr>
 					<th>PrimaryKey</th>
@@ -149,6 +154,10 @@
 				
 			</tbody>
 		</table>
+	</div>
+
+		
+		
 	</div>
 	</div>
 	
