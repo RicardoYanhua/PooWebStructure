@@ -1,26 +1,308 @@
 package com.unu.poo2.models;
 
 import com.unu.poo2.utils.Conexion;
+import com.unu.poo2.beans.Entidad;
 import java.sql.*;
+import java.sql.Date;
 import java.text.DecimalFormat;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class StructureModel {
 	
-	Connection con = Conexion.getInstance().getConection();
+	// ABRIR Y OBTENER UNICA CONEXION CON LA BASE DE DATOS
+	Connection conexion = Conexion.getInstance().getConection();
 	
+	// INICIALIZAR RECURSOS PARA MANEJAR LA BD
+	CallableStatement cst;
 	PreparedStatement pst;
-	ResultSet rs ;
+	Statement st;
+	ResultSet rs;
+	
+	// FORMATO PARA NUMERO DECIMALES DE DOS DECIMAS - CONFIGURABLE
+	DecimalFormat decimalFormat = new DecimalFormat("#.00");
+	
+	// FORMATO PARA FECHAS DE TIPO LOCALDATE
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		/*
+		 * LocalDate fecha = LocalDate.now();
+		 * String fechaFormateada = fecha.format(formatter);
+		 * */
+	
+	// METODO PARA LISTAR UNA TABLA DE LA BD
+	public List<Entidad> listar() {
+		try {
+			
+			// METODO 1
+			cst = conexion.prepareCall(""/*CALL sp_ProcedureName(?,?,?,...)*/);
+			rs = cst.executeQuery();
+			
+			// METODO 2
+			pst = conexion.prepareStatement(SQL_LISTAR/*INSERTAR LLAMADA EN SQL*/);
+			rs = pst.executeQuery();
+			
+			// LISTA DEL REGISTRO COMPLETO DE LA BD
+			List<Entidad> lista = new ArrayList<>();
+			
+			while(rs.next()) {
+				
+				// OBTENER Y GUARADAR REGISTRO BD
+				lista.add(new Entidad(
+						rs.getInt("VarNameBD_typeInt"),
+						rs.getString("VarNameBD_typeString"),
+						rs.getDouble("VarNameBD_typeDouble"),
+						rs.getDate("VarNameBD_typeDate").toLocalDate()
+						));
+			}
+			return lista;
+			
+		} catch (SQLException e) {
+			System.out.println("ERROR EN " + this.getClass().getName() + ".listar() \n" + e.getMessage().toString());
+			return null;
+		}finally {
+			Conexion.getInstance().cerrarRecursos(cst,st,pst,rs);
+		}
+	}
+	
+	// METODO PARA OBETNER UN REGISTRO DE LA BD
+	public Entidad obtener(int primaryKeyRecord) {
+		try {
+			// METODO 1
+			cst = conexion.prepareCall(""/*CALL sp_ProcedureName(?,?,?,...)*/);
+			cst.setInt(1, primaryKeyRecord);
+			rs = cst.executeQuery();
+						
+			// METODO 2
+			pst = conexion.prepareStatement(SQL_OBTENER_REGISTRO/*INSERTAR LLAMADA EN SQL*/);
+			pst.setInt(1, primaryKeyRecord);
+			rs = pst.executeQuery();
+			
+			
+			if(rs.next()) {
+				// OBTENER REGISTRO
+				return new Entidad(
+						rs.getInt("VarNameBD_typeInt"),
+						rs.getString("VarNameBD_typeString"),
+						rs.getDouble("VarNameBD_typeDouble"),
+						rs.getDate("VarNameBD_typeDate").toLocalDate()
+						);
+			}else {
+				// RETORNAR VACIO
+				return null;
+			}
+		} catch (SQLException e) {
+			System.out.println("ERROR EN " + this.getClass().getName() + ".obtener() \n" + e.getMessage().toString());
+			return null;
+		}finally {
+			Conexion.getInstance().cerrarRecursos(cst,st,pst,rs);
+		}
+	}
+
+	// METODO PARA MODIFICAR UN REGISTRO DE LA BD
+	public int modificar (Entidad ObjetoEditable) {
+		try {
+			int filasAfectadas = 0;
+			
+			// METODO 1
+			cst = conexion.prepareCall(""/*CALL sp_ProcedureName(?,?,?,...)*/);
+			cst.setInt(1, ObjetoEditable.getVariableTipoInt());
+			cst.setString(2, ObjetoEditable.getVariableTipoString());
+			cst.setDouble(3, ObjetoEditable.getVariableTipoDouble());
+			cst.setDate(4, Date.valueOf(ObjetoEditable.getVariableTipoDate()));
+			// ...
+			filasAfectadas = cst.executeUpdate();
+			
+			// METODO 2
+			pst = conexion.prepareStatement(SQL_MODIFICAR/*INSERTAR LLAMADA EN SQL*/);
+			pst.setInt(1, ObjetoEditable.getVariableTipoInt());
+			pst.setString(2, ObjetoEditable.getVariableTipoString());
+			pst.setDouble(3, ObjetoEditable.getVariableTipoDouble());
+			pst.setDate(4, Date.valueOf(ObjetoEditable.getVariableTipoDate()));
+			// ...
+			filasAfectadas = pst.executeUpdate();
+			
+			return filasAfectadas;
+			
+		} catch (SQLException e) {
+			System.out.println("ERROR EN " + this.getClass().getName() + ".modificar() \n" + e.getMessage().toString());
+			return 0;
+		}finally {
+			Conexion.getInstance().cerrarRecursos(cst,st,pst,rs);
+		}
+	}
+	
+	// METODO PARA INSERTAR UN NUEVO REGISTRO
+	public int insertar (Entidad ObjetoNuevo) {
+		try {
+			int filasAfectadas = 0;
+			// METODO 1
+			cst = conexion.prepareCall(""/*CALL sp_ProcedureName(?,?,?,...)*/);
+			cst.setInt(1, ObjetoNuevo.getVariableTipoInt());
+			cst.setString(2, ObjetoNuevo.getVariableTipoString());
+			cst.setDouble(3, ObjetoNuevo.getVariableTipoDouble());
+			cst.setDate(4, Date.valueOf(ObjetoNuevo.getVariableTipoDate()));
+			// ...
+			filasAfectadas = cst.executeUpdate();
+						
+						
+			// METODO 2
+			pst = conexion.prepareStatement(SQL_INSERTAR/*INSERTAR LLAMADA EN SQL*/);
+			pst.setInt(1, ObjetoNuevo.getVariableTipoInt());
+			pst.setString(2, ObjetoNuevo.getVariableTipoString());
+			pst.setDouble(3, ObjetoNuevo.getVariableTipoDouble());
+			pst.setDate(4, Date.valueOf(ObjetoNuevo.getVariableTipoDate()));
+			// ...
+			filasAfectadas = pst.executeUpdate();
+			
+			return filasAfectadas;
+			
+		} catch (SQLException e) {
+			System.out.println("ERROR EN " + this.getClass().getName() + ".insertar() \n" + e.getMessage().toString());
+			return 0;
+		}finally {
+			Conexion.getInstance().cerrarRecursos(cst,st,pst,rs);
+		}
+	}
+	
+	// METODO PARA ELIMNAR UN REGISTRO
+	public int eliminar (int primaryKeyRecord) {
+		try {
+			int filasAfectadas = 0;
+			
+			// METODO 1 
+			cst = conexion.prepareCall(""/*CALL sp_ProcedureName(?,?,?,...)*/);
+			cst.setInt(1, primaryKeyRecord);
+			// ... other conditions
+			filasAfectadas = cst.executeUpdate();
+			
+			// METODO 2
+			pst = conexion.prepareStatement(SQL_ELIMINAR/*INSERTAR LLAMADA EN SQL*/);
+			pst.setInt(1, primaryKeyRecord);
+			// ... other conditions
+			filasAfectadas = pst.executeUpdate();
+			
+			return filasAfectadas;
+			
+		} catch (SQLException e) {
+			System.out.println("ERROR EN " + this.getClass().getName() + ".eliminar() \n" + e.getMessage().toString());
+			return 0;
+		}finally {
+			Conexion.getInstance().cerrarRecursos(cst,st,pst,rs);
+		}
+	}
+
+	// METODO PARA BUSCAR
+	public List<Entidad> buscar(String SearchCondition){
+		try {
+			
+			// METODO 1
+			cst = conexion.prepareCall(""/*CALL sp_ProcedureName(?,?,?,...)*/);
+			cst.setString(1, /*'%' + */SearchCondition/* + '%'*/);
+			// ... other conditions
+			rs = cst.executeQuery();
+			
+			// METODO 2
+			pst = conexion.prepareStatement(SQL_BUSCAR/*INSERTAR LLAMADA EN SQL*/);
+			pst.setString(1, /*'%' + */SearchCondition/* + '%'*/);
+			// ... other conditions
+			rs = pst.executeQuery();
+			
+			// LISTA DEL REGISTRO DE BUSQUEDA DE LA BD
+			List<Entidad> lista = new ArrayList<>();
+			
+			while(rs.next()) {
+				
+				// OBTENER Y GUARADAR REGISTRO BD
+				lista.add(new Entidad(
+						rs.getInt(""),
+						rs.getString(""),
+						rs.getDouble(""),
+						rs.getDate("").toLocalDate()
+						));
+			}
+			return lista;
+			
+		} catch (SQLException e) {
+			System.out.println("ERROR EN " + this.getClass().getName() + ".buscar() \n" + e.getMessage().toString());
+			return null;
+		}finally {
+			Conexion.getInstance().cerrarRecursos(cst,st,pst,rs);
+		}
+	}
+	
+	// METODO PARA LISTAR UNA TABLA DE LA BD
+	public List<Object[]> listCustom() {
+		try {
+				
+			// METODO 1
+			cst = conexion.prepareCall(""/*CALL sp_ProcedureName(?,?,?,...)*/);
+			rs = cst.executeQuery();
+				
+			// METODO 2
+			pst = conexion.prepareStatement(SQL_LISTAR_CUSTOM/*INSERTAR LLAMADA EN SQL*/);
+			rs = pst.executeQuery();
+				
+			// LISTA DEL REGISTRO COMPLETO DE LA BD
+			List<Object[]> listaCustom = new ArrayList<>();
+				
+			while(rs.next()) {
+					
+				// OBTENER Y GUARADAR REGISTRO BD
+				listaCustom.add(new Object[] {
+						rs.getInt("VarNameBD_ofCustom_typeInt"),
+						rs.getString("VarNameBD_ofCustom_typeString"),
+						rs.getDouble("VarNameBD_ofCustom_typeDouble"),
+						rs.getDate("VarNameBD_ofCustom_typeDate").toLocalDate()
+						/*...*/
+				});
+			}
+			return listaCustom;
+	
+		} catch (SQLException e) {
+			System.out.println("ERROR EN " + this.getClass().getName() + ".listCustom() \n" + e.getMessage().toString());
+			return null;
+		}finally {
+			Conexion.getInstance().cerrarRecursos(cst,st,pst,rs);
+		}
+	}
+	
+	// METODO PARA CONTAR REGISTROS TOTALES
+	public int contarRegistrosTotal() {
+		try {
+				
+			// METODO 1
+			cst = conexion.prepareCall(""/*CALL sp_ProcedureName(?,?,?,...)*/);
+			rs = cst.executeQuery();
+				
+			// METODO 2
+			pst = conexion.prepareStatement(SQL_COUNT_RECORD/*INSERTAR LLAMADA EN SQL*/);
+			rs = pst.executeQuery();
+				
+			if(rs.next()) {
+				return rs.getInt("total"); // NOMBRE DEFINIDO POR EL 'AS'
+			}else {
+				return 0;
+			}
+			
+		} catch (SQLException e) {
+			System.out.println("ERROR EN " + this.getClass().getName() + ".contarRegistrosTotal() \n" + e.getMessage().toString());
+			return 0;
+		}finally {
+			Conexion.getInstance().cerrarRecursos(cst,st,pst,rs);
+		}
+	}
+	
 	
 	String SQL_TABLA = "";
 	String SQL_PRIMARY_KEY = "";
-	String SQL_SEARCH_CONDITION = "";
 	
-	String SQL_LISTAR_TABLA = "SELECT * FROM " + SQL_TABLA;
-	String SQL_LISTAR_BUSQUEDA_CONDITION = "SELECT * FROM " + SQL_TABLA + " WHERE " + SQL_SEARCH_CONDITION +" like ?";
+	String SQL_COUNT_RECORD = "SELECT COUNT(*) AS total FROM " + SQL_TABLA;
+	String SQL_LISTAR = "SELECT * FROM " + SQL_TABLA;
+	String SQL_LISTAR_CUSTOM = "SELECT var1_custom,var2_custom,var3_custom,... FROM " + SQL_TABLA;
 	String SQL_OBTENER_REGISTRO = "SELECT * FROM " + SQL_TABLA + " WHERE " + SQL_PRIMARY_KEY + " = ?" ;
 	String SQL_ELIMINAR = "DELETE FROM " + SQL_TABLA + " WHERE " + SQL_PRIMARY_KEY + " = ?";
-	String SQL_REGISTRAR = "INSERT INTO " + SQL_TABLA + " ("
+	String SQL_INSERTAR = "INSERT INTO " + SQL_TABLA + " ("
 			+ "var,"
 			+ "var,"
 			+ "var,"
@@ -33,125 +315,10 @@ public class StructureModel {
 			+ " var = ? ,"
 			+ " var = ?  "
 			+ " WHERE " + SQL_PRIMARY_KEY + " = ?";
-	
-	public List<Object[]> listar() {
-		try {
-			
-			pst = con.prepareStatement(""/*SQL*/);
-			rs = pst.executeQuery();
-			
-			
-			List<Object[]> lista = new ArrayList<>();
-			while(rs.next()) {
-				lista.add(new Object[] {
-						rs.getInt(1),
-						rs.getInt(2)
-				});
-			}
-			return lista;
-			
-		} catch (SQLException e) {
-			System.out.println("ERROR EN " + this.getClass().getName() + ".listar() \n" + e.getMessage().toString());
-			return null;
-		}finally {
-			Conexion.getInstance().cerrarRecursos(pst,rs);
-		}
-	}
-	
-	public Object[] obtener (int id) {
-		try {
-			
-			pst = con.prepareStatement(""/*SQL*/);
-			pst.setInt(1, id);
-			rs = pst.executeQuery();
-			
-			if(rs.next()) {
-				return new Object[] {
-						rs.getInt(1),
-						rs.getInt(2)
-				};
-			}else {
-				return null;
-			}
-		} catch (SQLException e) {
-			System.out.println("ERROR EN " + this.getClass().getName() + ".obtener() \n" + e.getMessage().toString());
-			return null;
-		}finally {
-			Conexion.getInstance().cerrarRecursos(pst,rs);
-		}
-	}
-	
-	public int modificar (Object[] registro) {
-		try {
-			int filasAfectadas = 0;
-			pst = con.prepareStatement(""/*SQL*/);
-			/*
-			pst.setInt(0, registro.data);
-			
-			pst.setDate(0, Date.valueOf(registro.data).toLocalDate());
-			
-			DecimalFormat df = new DecimalFormat("#.00");
-			pst.setDouble(0, df.format(registro.data));
-			
-			pst.setString(0, registro.data);
-			*/
-			
-			
-			filasAfectadas = pst.executeUpdate();
-			
-			return filasAfectadas;
-			
-		} catch (SQLException e) {
-			System.out.println("ERROR EN " + this.getClass().getName() + ".modificar() \n" + e.getMessage().toString());
-			return 0;
-		}finally {
-			Conexion.getInstance().cerrarRecursos(pst,rs);
-		}
-	}
-	public int registrar (Object[] registro) {
-		try {
-			int filasAfectadas = 0;
-			pst = con.prepareStatement(""/*SQL*/);
-			/*
-			pst.setInt(0, registro.data);
-			
-			pst.setDate(0, Date.valueOf(registro.data).toLocalDate());
-			
-			DecimalFormat df = new DecimalFormat("#.00");
-			pst.setDouble(0, df.format(registro.data));
-			
-			pst.setString(0, registro.data);
-			*/
-			
-			
-			filasAfectadas = pst.executeUpdate();
-			
-			return filasAfectadas;
-			
-		} catch (SQLException e) {
-			System.out.println("ERROR EN " + this.getClass().getName() + ".registrar() \n" + e.getMessage().toString());
-			return 0;
-		}finally {
-			Conexion.getInstance().cerrarRecursos(pst,rs);
-		}
-	}
-	public int eliminar (int id) {
-		try {
-			int filasAfectadas = 0;
-			pst = con.prepareStatement(""/*SQL*/);
-			pst.setInt(1, id);
-			
-			filasAfectadas = pst.executeUpdate();
-			
-			return filasAfectadas;
-			
-		} catch (SQLException e) {
-			System.out.println("ERROR EN " + this.getClass().getName() + ".eliminar() \n" + e.getMessage().toString());
-			return 0;
-		}finally {
-			Conexion.getInstance().cerrarRecursos(pst,rs);
-		}
-	}
+	String SQL_SEARCH_CONDITION = "";
+	String SQL_BUSCAR = "SELECT * FROM " + SQL_TABLA + " WHERE " + SQL_SEARCH_CONDITION +" like ?";
 	
 
 }
+
+
